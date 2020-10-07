@@ -3,31 +3,43 @@ import logo from '../logo.png';
 import './App.css';
 import Web3 from 'web3';
 import { PureComponent } from 'react';
+import { Header, Image, Table } from 'semantic-ui-react'
+
+
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  BarChart,Bar,LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
+
+const Dagger = require('@maticnetwork/dagger')
+
+// connect to correct dagger server, for receiving network specific events
+//
+// you can also use socket based connection
+const dagger = new Dagger("wss://mainnet.dagger.matic.network")
+
+
 
 const data = [
   {
-    name: 'Page A', uv: 4000, pv: 2400, amt: 2400,
+     uv: 4000, pv: 2400,
   },
   {
-    name: 'Page B', uv: 3000, pv: 1398, amt: 2210,
+   uv: 3000, pv: 1398
   },
   {
-    name: 'Page C', uv: 2000, pv: 9800, amt: 2290,
+     uv: 2000, pv: 9800
   },
   {
-    name: 'Page D', uv: 2780, pv: 3908, amt: 2000,
+    uv: 2780, pv: 3908
   },
   {
-    name: 'Page E', uv: 1890, pv: 4800, amt: 2181,
+    uv: 1890, pv: 4800
   },
   {
-    name: 'Page F', uv: 2390, pv: 3800, amt: 2500,
+    uv: 2390, pv: 3800
   },
   {
-    name: 'Page G', uv: 3490, pv: 4300, amt: 2100,
+   uv: 3490, pv: 4300
   },
 ];
 
@@ -41,74 +53,218 @@ class App extends Component {
     super(props);
     this.state = {
     value: '',
-    blockNumber: 0,
-    difficulty: 0,
-    gasPrice: 0,
-    latestBlocks: [],
+    gasPrices: [],
+    latestBlocksmatic:[],
     web3:{},
-    tronWeb:{}
+    web31:{},
+    gasPrice:'',
+    gasPrice1:'',
+    gasPrice2:'',
+    gasPrice3:'',
+    latestBlock:{},
+    latestBlockmatic:{},
+    amount:'',
+    amount1:'',
+    gasPricefirst:'',
+    gasPricefirst1:'',
+    gasPricelast:'',
+    gasPricelast1:'',
+    amountusd:'',
+    amount1usd:'',
+    gasPricefirstusd:'',
+    gasPricefirst1usd:'',
+    gasPricelastusd:'',
+    gasPricelast1usd:'',    
+
   };
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-
-    this.hello = this.hello.bind(this);
+  this.hello = this.hello.bind(this);
+ 
   }
 
 
   async componentWillMount() {
     // Load Web3
     let web3 = new Web3('https://mainnet.infura.io/v3/c47bbc8d04444c329473b4a30d203602')
-    this.setState({web3:web3});
+    await this.setState({web3:web3});
+
+    // Javascript 
+
+
+   let web31 = new Web3('https://rpc-mumbai.matic.today');
+   //  let web31 = new Web3('https://rpc-mainnet.matic.network');
+    
+    
+   await this.setState({web31:web31});
+
     // Fetch latest block
     let latestBlock = await web3.eth.getBlock('latest')
     console.log('latest block', latestBlock)
-    this.setState({
-      blockNumber: latestBlock.number,
-      difficulty: latestBlock.difficulty
+    this.setState({latestBlock:latestBlock});
+ 
+
+    let latestBlockmatic = await web31.eth.getBlock('latest')
+    console.log('latest block', latestBlockmatic)
+    this.setState({latestBlockmatic:latestBlockmatic});
+
+    dagger.on('latest:block.number', result => {
+      console.log(`New block created: ${result}`)
     })
+
+
+
+//     // get new block as soon as it gets created
+//    dagger.on('latest:block.number', latestBlockmatic => {
+//    latestBlockmatic = latestBlockmatic;
+//     this.setState({latestBlockmatic:latestBlockmatic});
+//     console.log(`New block created: ${latestBlockmatic}`)   
+    
+// })
+
+
     
     // let privateKey1 = "[YOUR_PRIVATE_KEY]";
     // let account = "[YOUR_ACCOUNT_ADDRESS]";
     // let schainEndpoint = "[YOUR_SKALE_CHAIN_ENDPOINT]";
 
     // const web31 = new Web3(new Web3.providers.HttpProvider(schainEndpoint));
-    // let gasPrice1 = await web31.eth.getGasPrice()
+    let gasPrice = await web31.eth.getGasPrice()
+    console.log('gasPrice', gasPrice)
+ 
+
+
+
+
+
+    // // Fetch Gas price
+    // let gasPrice = await web3.eth.getGasPrice()
     // console.log('gasPrice', gasPrice)
     // this.setState({
-    //   gasPrice1: gasPrice1
+    //   gasPrice: gasPrice
     // })
+    
+    //   // Fetch Gas price
+    //   let gasPrice1 = await web31.eth.getGasPrice()
+    //   console.log('gasPrice', gasPrice1)
+    //   this.setState({
+    //     gasPrice1: gasPrice1
+    //   })
 
 
-
-
-let TronWeb = require('tronweb');
-let fullNode = 'https://api.shasta.trongrid.io';
-let solidityNode = 'https://api.shasta.trongrid.io';
-let eventServer = 'https://api.shasta.trongrid.io';
-let privateKey = 'bd832e83121d0a0f53edadc9de6d5846f4b0fd29e318825325bff2f3f2be9f10';
-let tronWeb = new TronWeb(fullNode,solidityNode,eventServer,privateKey);
-console.log(tronWeb);
-this.setState({tronWeb:tronWeb});
-console.log(this.state.tronWeb);
-    // Fetch Gas price
-    let gasPrice = await web3.eth.getGasPrice()
-    console.log('gasPrice', gasPrice)
-    this.setState({
-      gasPrice: gasPrice
-    })
+   
+   
 
     // Fetch latest 10 blocks
     let block
-    let latestBlocks = []
-    for (let i = 0; i < 10; i++) {
-      block = await web3.eth.getBlock(latestBlock.number - i)
-      console.log(block)
-      latestBlocks.push(block)
+    let gasPrices1 = []
+    let gasPricesasc = []
+   
+    console.log("asas");
+    let amount = 0;
+    for (let i = 0; i < 20; i++) {
+      const transactionReceipt = await this.state.web3.eth.getTransaction(this.state.latestBlock.transactions[i]);
+   
+      console.log(transactionReceipt.gasPrice);
+      
+    //  console.log(transactionReceipt1.gasPrice);
+      gasPrices1.push(transactionReceipt.gasPrice.substring(0,3));
+
+      amount += parseInt(transactionReceipt.gasPrice);
+
+      console.log(amount);
     }
+
+    gasPricesasc = gasPrices1.sort(function(a, b){return a - b})
+    let amountusd = amount*0.00000034;
+    console.log(amountusd);
+    console.log(amount);
+    let gasPricefirstusd = gasPricesasc[0]*0.00000034;
+    let gasPricelastusd = gasPricesasc[19]*0.00000034;
     this.setState({
-      latestBlocks: latestBlocks
+      gasPrices1: gasPrices1,
+      amount:amount,
+      amountusd:amountusd,
+      gasPricefirst:gasPricesasc[0],
+      gasPricelast:gasPricesasc[19],
+      gasPricefirstusd:gasPricefirstusd,
+      gasPricelastusd:gasPricelastusd
     })
+    console.log(this.state.gasPrices1);
+
+
+
+
+   console.log(latestBlockmatic);  
+
+   for(let j=0;j<200;j++){
+    const blockmatic = await this.state.web31.eth.getBlock(latestBlockmatic.number - j);
+    console.log(blockmatic);
+    console.log(blockmatic.transactions.length);
+    let amount = 0
+    let gasPrices2 = []
+    let gasPricesasc1 = []
+    let amount1 = 0;
+    for(let i = 0; i < blockmatic.transactions.length; i++) {
+     
+    
+    let transactionReceipt1;
+      transactionReceipt1 = await this.state.web31.eth.getTransaction(blockmatic.transactions[i]);
+      console.log(transactionReceipt1.gasPrice);
+      
+      amount1 += transactionReceipt1.gasPrice;
+
+      
+
+      for(i=0; i<20; i++){
+        gasPrices2.push(transactionReceipt1.gasPrice.substring(0,1))
+      }
+      gasPricesasc1 = gasPrices2.sort(function(a, b){return a - b})
+    
+      console.log(gasPrices2);
+    let gasPrice3 = [];
+    for(let i=0;i<20;i++){
+     gasPrice3.push({eth:gasPrices1[i],matic:gasPrices2[i]});
+    }
+    console.log(amount1);
+    amount1 = amount1.substring(1,2);
+    let amount1usd = amount1*0.00000034;
+    console.log(amount1);
+    let gasPricefirst1usd = gasPricesasc[0]*0.00000034;
+    let gasPricelast1usd = gasPricesasc[19]*0.00000034;
+     console.log(gasPrice3);
+     this.setState({
+       gasPrice3:gasPrice3,
+       amount1:amount1,
+       amount1usd:amount1usd,
+       gasPricefirst1:gasPrices2[0],
+       gasPricelast1:gasPrices2[19],
+       gasPricefirst1usd:gasPricefirst1usd,
+       gasPricelast1usd:gasPricelast1usd
+    });
+
+   }
+
+ 
+  
+}
+
+
+
+    
+
+
+
+
+    //  // Fetch latest 10 blocks
+    //  let blockmatic
+    //  let latestBlocksmatic = []
+    
+    //  this.setState({
+    //    latestBlocksmatic: latestBlocksmatic
+    //  })
+
+    //  console.log(this.state.latestBlocksmatic);
+ 
   }
 
 
@@ -123,9 +279,10 @@ console.log(this.state.tronWeb);
   }
 
   async hello(){
-    await this.state.tronWeb.trx.getTransactionInfo("f7c50b6bcf937014faffa50f813ad2a2f805899b5711ead2d92782e3c5cd52c8")
-    .then(result => {console.log(result.fee)});
+var a = await this.state.web3.eth.getTransaction('0xe91f3b42496a24f3126f0c6f96717f12de6087be790d6ddd03029379d5b73ba7');
+console.log(a);
   }
+
 
 
 
@@ -140,20 +297,13 @@ console.log(this.state.tronWeb);
           <div className="row">
             <main role="main" className="col-lg-12 d-flex text-center">
               <div className="content mr-auto ml-auto" style={{ width: '800px' }}>
-                <h5>Ethereum Blockchain Explorer</h5>
-                <form onSubmit={this.handleSubmit}>
-        <label>
-          Name:
-          <input type="text" value={this.state.value} onChange={this.handleChange} />
-        </label>
-        <input type="submit" value="Submit" />
-        </form>
-        <button onClick={this.hello}>Hello</button>
 
+    
+{/* 
         <LineChart
-        width={500}
+        width={800}
         height={300}
-        data={data}
+        data={this.state.gasPrice3}
         margin={{
           top: 5, right: 30, left: 20, bottom: 5,
         }}
@@ -163,70 +313,184 @@ console.log(this.state.tronWeb);
         <YAxis />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-        <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
-      </LineChart>
-    
-                <div className="row">
-                  <div className="col-4">
-                    <div className="bg-light pt-4 pb-3 m-1">
-                      <h5>Latest Block</h5>
-                      <p>{this.state.blockNumber}</p>
-                    </div>
-                  </div>
+        <Line type="monotone" dataKey="eth" stroke="#8884d8" activeDot={{ r: 8 }} />
+        <Line type="monotone" dataKey="matic" stroke="#82ca9d" />
+      </LineChart> */}
 
-                  <div className="col-4">
-                    <div className="bg-light pt-4 pb-3 m-1">
-                      <h5>Difficulty</h5>
-                      <p>{this.state.difficulty}</p>
-                    </div>
-                  </div>
-                  <div className="col-4">
-                    <div className="bg-light pt-4 pb-3 m-1">
-                      <h5>Gas Price</h5>
-                      <p>{this.state.gasPrice}</p>
-                    </div>
-                  </div>
-
-                </div>
+<BarChart
+        width={800}
+        height={300}
+        data={this.state.gasPrice3}
+        margin={{
+          top: 5, right: 30, left: 20, bottom: 5,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="eth" fill="#8884d8" />
+        <Bar dataKey="matic" fill="#82ca9d" />
+      </BarChart>
 
                 <div className="row">
-                  <div className="col-lg-12 mt-3">
-
-                    <div className="card">
-                      <div className="card-header">
-                        <h5>Latest Blocks</h5>
-                      </div>
-                      <div className="card-body">
-                        <table className="table">
-                          <thead>
-                            <tr>
-                              <th scope="col">#</th>
-                              <th scope="col">Hash</th>
-                              <th scope="col">Miner</th>
-                              <th scope="col">Timestamp</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            { this.state.latestBlocks.map((block, key) => {
-                              return (
-                                <tr key={key} >
-                                  <th scope="row">{block.number}</th>
-                                  <td>{block.hash.substring(0,20)}...</td>
-                                  <td>{block.miner.substring(0,20)}...</td>
-                                  <td>{block.timestamp}</td>
-                                </tr>
-                              )
-                            }) }
-                          </tbody>
+{/* 
                     
+                    <Table basic='very' celled collapsing>
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell>Network</Table.HeaderCell>
+        <Table.HeaderCell>Gas price</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
 
-                        </table>
-                      </div>
-                    </div>
+    <Table.Body>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+            Avg gas price eth 
+            </Header.Content>
+          </Header>  
+        </Table.Cell>{this.state.amount.substring(1,4)}
+        <Table.Cell>{this.state.amountusd}</Table.Cell>
+      </Table.Row>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+            Avg gas price matic
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+       {this.state.amount1}
+        
+        <Table.Cell>{this.state.amount1usd}</Table.Cell>
+     
+      </Table.Row>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+            low eth 
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+        <Table.Cell>{this.state.gasPricefirst}</Table.Cell>
 
-                  </div>
+        <Table.Cell>{this.state.gasPricefirstusd}</Table.Cell>
+      </Table.Row>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+            low matic
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+        <Table.Cell>{this.state.gasPricefirst1}</Table.Cell>
+
+        <Table.Cell>{this.state.gasPricefirst1usd}</Table.Cell>
+      </Table.Row>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+            high eth
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+        <Table.Cell>{this.state.gasPricelast}</Table.Cell>
+
+        <Table.Cell>{this.state.gasPricelastusd}</Table.Cell>
+      </Table.Row>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+            high matic
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+        <Table.Cell>{this.state.gasPricelast1}</Table.Cell>
+
+        <Table.Cell>{this.state.gasPricelast1usd}</Table.Cell>
+      </Table.Row>
+    </Table.Body>
+  </Table> */}
+
+<Table basic='very' celled collapsing>
+    <Table.Header>
+      <Table.Row>
+        <Table.HeaderCell>Network</Table.HeaderCell>
+        <Table.HeaderCell>Avg price</Table.HeaderCell>
+        <Table.HeaderCell>Lowest </Table.HeaderCell>
+        <Table.HeaderCell>Highest</Table.HeaderCell>
+      </Table.Row>
+    </Table.Header>
+
+    <Table.Body>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+              Matic
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+        <Table.Cell>{this.state.amount1}</Table.Cell>
+        <Table.Cell>{this.state.gasPricefirst1}</Table.Cell>
+        <Table.Cell>{this.state.gasPricelast1}</Table.Cell>
+      </Table.Row>
+      
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+              Ethereum
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+
+        <Table.Cell>{this.state.amount.toString().substring(1,4)}</Table.Cell>
+        <Table.Cell>{this.state.gasPricefirst}</Table.Cell>
+        <Table.Cell>{this.state.gasPricelast}</Table.Cell>
+      </Table.Row>
+
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+              Matic
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+        <Table.Cell>{parseFloat(this.state.amount1usd).toFixed(6)}</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricefirst1usd).toFixed(6)}</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricelast1usd).toFixed(6)}</Table.Cell>
+      </Table.Row>
+      <Table.Row>
+        <Table.Cell>
+          <Header as='h5' image>
+            <Header.Content>
+              Ethereum
+            </Header.Content>
+          </Header>
+        </Table.Cell>
+        <Table.Cell>{this.state.amountusd}</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricefirstusd).toFixed(6)}</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricelastusd).toFixed(6)}</Table.Cell>
+      </Table.Row>
+      
+      <Table.Row>
+
+      </Table.Row>
+    </Table.Body>
+  </Table>
+                  
                 </div>
+                
 
               </div>
             </main>
