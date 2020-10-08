@@ -7,7 +7,7 @@ import { Header, Image, Table } from 'semantic-ui-react'
 
 
 import {
-  BarChart,Bar,LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  AreaChart, Area,BarChart,Bar,LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 
 const Dagger = require('@maticnetwork/dagger')
@@ -42,6 +42,33 @@ const data = [
    uv: 3490, pv: 4300
   },
 ];
+
+
+const getPercent = (value, total) => {
+  const ratio = total > 0 ? value / total : 0;
+
+  return toPercent(ratio, 2);
+};
+
+const toPercent = (decimal, fixed = 0) => `${(decimal * 1000).toFixed(fixed)}%`;
+const renderTooltipContent = (o) => {
+  const { payload, label } = o;
+  const total = payload.reduce((result, entry) => (result + entry.value), 0);
+
+  return (
+    <div className="customized-tooltip-content">
+      <ul className="list">
+        {
+          payload.map((entry, index) => (
+            <li key={`item-${index}`} style={{ color: entry.color }}>
+              {`${entry.name}: ${entry.value}(${getPercent(entry.value, total)})`}
+           </li>
+          ))
+        }
+      </ul>
+    </div>
+  );
+};
 
 
 class App extends Component {
@@ -175,10 +202,11 @@ class App extends Component {
     }
 
     gasPricesasc = gasPrices1.sort(function(a, b){return a - b})
-    let amountusd = amount*0.00000034;
-    console.log(amountusd);
-    console.log(amount);
+    //let amountusd = amount*0.00000034;
+    //console.log(amountusd);
+    //console.log(amount);
     let gasPricefirstusd = gasPricesasc[0]*0.00000034;
+    let amountusd = gasPricesasc[10]*0.00000034;
     let gasPricelastusd = gasPricesasc[19]*0.00000034;
     this.setState({
       gasPrices1: gasPrices1,
@@ -229,8 +257,8 @@ class App extends Component {
     amount1 = amount1.substring(1,2);
     let amount1usd = amount1*0.00000034;
     console.log(amount1);
-    let gasPricefirst1usd = gasPricesasc[0]*0.00000034;
-    let gasPricelast1usd = gasPricesasc[19]*0.00000034;
+    let gasPricefirst1usd = gasPricesasc1[0]*0.00000034;
+    let gasPricelast1usd = gasPricesasc1[19]*0.00000034;
      console.log(gasPrice3);
      this.setState({
        gasPrice3:gasPrice3,
@@ -316,7 +344,7 @@ console.log(a);
         <Line type="monotone" dataKey="eth" stroke="#8884d8" activeDot={{ r: 8 }} />
         <Line type="monotone" dataKey="matic" stroke="#82ca9d" />
       </LineChart> */}
-
+{/* 
 <BarChart
         width={800}
         height={300}
@@ -332,7 +360,42 @@ console.log(a);
         <Legend />
         <Bar dataKey="eth" fill="#8884d8" />
         <Bar dataKey="matic" fill="#82ca9d" />
-      </BarChart>
+      </BarChart> */}
+
+{/* <AreaChart
+        width={500}
+        height={400}
+        data={this.state.gasPrice3}
+        margin={{
+          top: 10, right: 30, left: 0, bottom: 0,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Area type="monotone" dataKey="eth" stackId="1" stroke="#8884d8" fill="#8884d8" />
+        <Area type="monotone" dataKey="matic" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
+      </AreaChart> */}
+
+<AreaChart
+        width={500}
+        height={400}
+        data={this.state.gasPrice3}
+        stackOffset="expand"
+        margin={{
+          top: 10, right: 30, left: 0, bottom: 0,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
+        <YAxis tickFormatter={toPercent} />
+        <Tooltip content={renderTooltipContent} />
+        <Area type="monotone" dataKey="eth" stackId="1" stroke="#555661" fill="#555661" />
+        <Area type="monotone" dataKey="matic" stackId="1" stroke="#2265c9" fill="#2265c9" />
+        <Area type="monotone" dataKey="c" stackId="1" stroke="#ffc658" fill="#ffc658" />
+      </AreaChart>
+
 
                 <div className="row">
 {/* 
@@ -439,9 +502,9 @@ console.log(a);
             </Header.Content>
           </Header>
         </Table.Cell>
-        <Table.Cell>{this.state.amount1}</Table.Cell>
-        <Table.Cell>{this.state.gasPricefirst1}</Table.Cell>
-        <Table.Cell>{this.state.gasPricelast1}</Table.Cell>
+        <Table.Cell>{this.state.amount1} Gwei</Table.Cell>
+        <Table.Cell>{this.state.gasPricefirst1} Gwei</Table.Cell>
+        <Table.Cell>{this.state.gasPricelast1} Gwei</Table.Cell>
       </Table.Row>
       
       <Table.Row>
@@ -453,9 +516,9 @@ console.log(a);
           </Header>
         </Table.Cell>
 
-        <Table.Cell>{this.state.amount.toString().substring(1,4)}</Table.Cell>
-        <Table.Cell>{this.state.gasPricefirst}</Table.Cell>
-        <Table.Cell>{this.state.gasPricelast}</Table.Cell>
+        <Table.Cell>{this.state.amount.toString().substring(1,4)} Gwei</Table.Cell>
+        <Table.Cell>{this.state.gasPricefirst} Gwei</Table.Cell>
+        <Table.Cell>{this.state.gasPricelast} Gwei</Table.Cell>
       </Table.Row>
 
       <Table.Row>
@@ -466,9 +529,9 @@ console.log(a);
             </Header.Content>
           </Header>
         </Table.Cell>
-        <Table.Cell>{parseFloat(this.state.amount1usd).toFixed(6)}</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricefirst1usd).toFixed(6)}</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricelast1usd).toFixed(6)}</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.amount1usd).toFixed(6)} USD</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricefirst1usd).toFixed(6)} USD</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricelast1usd).toFixed(6)} USD</Table.Cell>
       </Table.Row>
       <Table.Row>
         <Table.Cell>
@@ -478,9 +541,9 @@ console.log(a);
             </Header.Content>
           </Header>
         </Table.Cell>
-        <Table.Cell>{this.state.amountusd}</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricefirstusd).toFixed(6)}</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricelastusd).toFixed(6)}</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.amountusd).toFixed(4)} USD</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricefirstusd).toFixed(6)} USD</Table.Cell>
+        <Table.Cell>{parseFloat(this.state.gasPricelastusd).toFixed(6)} USD</Table.Cell>
       </Table.Row>
       
       <Table.Row>
