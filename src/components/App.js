@@ -185,18 +185,18 @@ class App extends Component {
     let block
     let gasPrices1 = []
     let gasPricesasc = []
-   
+    let transprice = 0
     console.log("asas");
     let amount = 0;
     for (let i = 0; i < 20; i++) {
       const transactionReceipt = await this.state.web3.eth.getTransaction(this.state.latestBlock.transactions[i]);
-   
-      console.log(transactionReceipt.gasPrice);
+       transprice = transactionReceipt.gasPrice*transactionReceipt.gas;
+      console.log(transprice);
       
     //  console.log(transactionReceipt1.gasPrice);
-      gasPrices1.push(transactionReceipt.gasPrice.substring(0,3));
+      gasPrices1.push(transprice.toString().substring(0,3));
 
-      amount += parseInt(transactionReceipt.gasPrice);
+      amount += parseInt(transprice);
 
       console.log(amount);
     }
@@ -232,19 +232,22 @@ class App extends Component {
     let gasPrices2 = []
     let gasPricesasc1 = []
     let amount1 = 0;
+    let transprice1 = 0;
     for(let i = 0; i < blockmatic.transactions.length; i++) {
      
     
     let transactionReceipt1;
       transactionReceipt1 = await this.state.web31.eth.getTransaction(blockmatic.transactions[i]);
-      console.log(transactionReceipt1.gasPrice);
+      transprice1 = transactionReceipt1.gasPrice*transactionReceipt1.gas;
       
-      amount1 += transactionReceipt1.gasPrice;
+      console.log(transprice1);
+      
+      amount1 += transprice1;
 
       
 
       for(i=0; i<20; i++){
-        gasPrices2.push(transactionReceipt1.gasPrice.substring(0,1))
+        gasPrices2.push(transprice1.toString().substring(0,1))
       }
       gasPricesasc1 = gasPrices2.sort(function(a, b){return a - b})
     
@@ -254,7 +257,7 @@ class App extends Component {
      gasPrice3.push({eth:gasPrices1[i],matic:gasPrices2[i]});
     }
     console.log(amount1);
-    amount1 = amount1.substring(1,2);
+    amount1 = amount1.toString().substring(1,2);
     let amount1usd = amount1*0.00000034;
     console.log(amount1);
     let gasPricefirst1usd = gasPricesasc1[0]*0.00000034;
