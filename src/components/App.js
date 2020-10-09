@@ -13,7 +13,7 @@ import {
 const Dagger = require('@maticnetwork/dagger')
 
 // connect to correct dagger server, for receiving network specific events
-//
+
 // you can also use socket based connection
 const dagger = new Dagger("wss://mainnet.dagger.matic.network")
 
@@ -52,22 +52,22 @@ const getPercent = (value, total) => {
 
 const toPercent = (decimal, fixed = 0) => `${(decimal * 1000).toFixed(fixed)}%`;
 const renderTooltipContent = (o) => {
-  const { payload, label } = o;
-  const total = payload.reduce((result, entry) => (result + entry.value), 0);
+  // const { payload, label } = o;
+  // const total = payload.reduce((result, entry) => (result + entry.value), 0);
 
-  return (
-    <div className="customized-tooltip-content">
-      <ul className="list">
-        {
-          payload.map((entry, index) => (
-            <li key={`item-${index}`} style={{ color: entry.color }}>
-              {`${entry.name}: ${entry.value}(${getPercent(entry.value, total)})`}
-           </li>
-          ))
-        }
-      </ul>
-    </div>
-  );
+  // return (
+  //   <div className="customized-tooltip-content">
+  //     <ul className="list">
+  //       {
+  //         payload.map((entry, index) => (
+  //           <li key={`item-${index}`} style={{ color: entry.color }}>
+  //             {`${entry.name}: ${entry.value}(${getPercent(entry.value, total)})`}
+  //          </li>
+  //         ))
+  //       }
+  //     </ul>
+  //   </div>
+  // );
 };
 
 
@@ -190,14 +190,12 @@ class App extends Component {
     let amount = 0;
     for (let i = 0; i < 20; i++) {
       const transactionReceipt = await this.state.web3.eth.getTransaction(this.state.latestBlock.transactions[i]);
-       transprice = transactionReceipt.gasPrice*transactionReceipt.gas;
+      transprice = transactionReceipt.gasPrice*transactionReceipt.gas;
       console.log(transprice);
       
     //  console.log(transactionReceipt1.gasPrice);
       gasPrices1.push(transprice.toString().substring(0,3));
-
       amount += parseInt(transprice);
-
       console.log(amount);
     }
 
@@ -237,21 +235,21 @@ class App extends Component {
      
     
     let transactionReceipt1;
-      transactionReceipt1 = await this.state.web31.eth.getTransaction(blockmatic.transactions[i]);
-      transprice1 = transactionReceipt1.gasPrice*transactionReceipt1.gas;
-      
-      console.log(transprice1);
-      
-      amount1 += transprice1;
-
-      
-
-      for(i=0; i<20; i++){
-        gasPrices2.push(transprice1.toString().substring(0,1))
-      }
-      gasPricesasc1 = gasPrices2.sort(function(a, b){return a - b})
+    transactionReceipt1 = await this.state.web31.eth.getTransaction(blockmatic.transactions[i]);
+    transprice1 = transactionReceipt1.gasPrice*transactionReceipt1.gas;
     
-      console.log(gasPrices2);
+    console.log(transprice1);
+    
+    amount1 += transprice1;
+
+      
+
+    for(i=0; i<20; i++){
+      gasPrices2.push(transprice1.toString().substring(0,1))
+    }
+    gasPricesasc1 = gasPrices2.sort(function(a, b){return a - b})
+    
+    console.log(gasPrices2);
     let gasPrice3 = [];
     for(let i=0;i<20;i++){
      gasPrice3.push({eth:gasPrices1[i],matic:gasPrices2[i]});
@@ -262,29 +260,19 @@ class App extends Component {
     console.log(amount1);
     let gasPricefirst1usd = gasPricesasc1[0]*0.00000034;
     let gasPricelast1usd = gasPricesasc1[19]*0.00000034;
-     console.log(gasPrice3);
-     this.setState({
-       gasPrice3:gasPrice3,
-       amount1:amount1,
-       amount1usd:amount1usd,
-       gasPricefirst1:gasPrices2[0],
-       gasPricelast1:gasPrices2[19],
-       gasPricefirst1usd:gasPricefirst1usd,
-       gasPricelast1usd:gasPricelast1usd
+    console.log(gasPrice3);
+    this.setState({
+      gasPrice3:gasPrice3,
+      amount1:amount1,
+      amount1usd:amount1usd,
+      gasPricefirst1:gasPrices2[0],
+      gasPricelast1:gasPrices2[19],
+      gasPricefirst1usd:gasPricefirst1usd,
+      gasPricelast1usd:gasPricelast1usd
     });
 
-   }
-
- 
-  
+  } 
 }
-
-
-
-    
-
-
-
 
     //  // Fetch latest 10 blocks
     //  let blockmatic
@@ -310,24 +298,46 @@ class App extends Component {
   }
 
   async hello(){
-var a = await this.state.web3.eth.getTransaction('0xe91f3b42496a24f3126f0c6f96717f12de6087be790d6ddd03029379d5b73ba7');
-console.log(a);
+    var a = await this.state.web3.eth.getTransaction('0xe91f3b42496a24f3126f0c6f96717f12de6087be790d6ddd03029379d5b73ba7');
+    console.log(a);
   }
-
-
-
-
 
   render() {
     return (
       <div>
-        <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+        <header>
+          <nav className="navbar navbar-light" style={{backgroundColor:"#0B1647"}}>
+            <div className=" col-0 navbar-brand" position="inline-block">
+              <img src={logo} style = {{width: "40px" , height: "40px"}} />
+              <b style={{
+                position: "absolute",
+                color: "white",
+                top: "22px",
+                fontSize: "20px",
+                fontFamily: "arial"}}>Matic</b>
+            </div>            
+          </nav>
+        </header>
         
-        </nav>
         <div className="container-fluid mt-5">
-          <div className="row">
-            <main role="main" className="col-lg-12 d-flex text-center">
-              <div className="content mr-auto ml-auto" style={{ width: '800px' }}>
+          <div align="center">
+            <AreaChart
+              width={500}
+              height={400}
+              data={this.state.gasPrice3}
+              stackOffset="expand"
+              margin={{
+                top: 10
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis tickFormatter={toPercent} />
+              <Tooltip content={renderTooltipContent} />
+              <Area type="monotone" dataKey="eth" stackId="1" stroke="#97F794" fill="#97F794" />
+              <Area type="monotone" dataKey="matic" stackId="1" stroke="#2265c9" fill="#2265c9" />
+              <Area type="monotone" dataKey="c" stackId="1" stroke="#ffc658" fill="#ffc658" />
+            </AreaChart>
 
     
 {/* 
@@ -381,187 +391,57 @@ console.log(a);
         <Area type="monotone" dataKey="matic" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
       </AreaChart> */}
 
-<AreaChart
-        width={500}
-        height={400}
-        data={this.state.gasPrice3}
-        stackOffset="expand"
-        margin={{
-          top: 10, right: 30, left: 0, bottom: 0,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" />
-        <YAxis tickFormatter={toPercent} />
-        <Tooltip content={renderTooltipContent} />
-        <Area type="monotone" dataKey="eth" stackId="1" stroke="#555661" fill="#555661" />
-        <Area type="monotone" dataKey="matic" stackId="1" stroke="#2265c9" fill="#2265c9" />
-        <Area type="monotone" dataKey="c" stackId="1" stroke="#ffc658" fill="#ffc658" />
-      </AreaChart>
-
-
-                <div className="row">
-{/* 
-                    
-                    <Table basic='very' celled collapsing>
-    <Table.Header>
-      <Table.Row>
-        <Table.HeaderCell>Network</Table.HeaderCell>
-        <Table.HeaderCell>Gas price</Table.HeaderCell>
-      </Table.Row>
-    </Table.Header>
-
-    <Table.Body>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-            Avg gas price eth 
-            </Header.Content>
-          </Header>  
-        </Table.Cell>{this.state.amount.substring(1,4)}
-        <Table.Cell>{this.state.amountusd}</Table.Cell>
-      </Table.Row>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-            Avg gas price matic
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-       {this.state.amount1}
-        
-        <Table.Cell>{this.state.amount1usd}</Table.Cell>
-     
-      </Table.Row>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-            low eth 
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-        <Table.Cell>{this.state.gasPricefirst}</Table.Cell>
-
-        <Table.Cell>{this.state.gasPricefirstusd}</Table.Cell>
-      </Table.Row>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-            low matic
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-        <Table.Cell>{this.state.gasPricefirst1}</Table.Cell>
-
-        <Table.Cell>{this.state.gasPricefirst1usd}</Table.Cell>
-      </Table.Row>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-            high eth
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-        <Table.Cell>{this.state.gasPricelast}</Table.Cell>
-
-        <Table.Cell>{this.state.gasPricelastusd}</Table.Cell>
-      </Table.Row>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-            high matic
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-        <Table.Cell>{this.state.gasPricelast1}</Table.Cell>
-
-        <Table.Cell>{this.state.gasPricelast1usd}</Table.Cell>
-      </Table.Row>
-    </Table.Body>
-  </Table> */}
-
-<Table basic='very' celled collapsing>
-    <Table.Header>
-      <Table.Row>
-        <Table.HeaderCell>Network</Table.HeaderCell>
-        <Table.HeaderCell>Avg price</Table.HeaderCell>
-        <Table.HeaderCell>Lowest </Table.HeaderCell>
-        <Table.HeaderCell>Highest</Table.HeaderCell>
-      </Table.Row>
-    </Table.Header>
-
-    <Table.Body>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-              Matic
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-        <Table.Cell>{this.state.amount1} Gwei</Table.Cell>
-        <Table.Cell>{this.state.gasPricefirst1} Gwei</Table.Cell>
-        <Table.Cell>{this.state.gasPricelast1} Gwei</Table.Cell>
-      </Table.Row>
-      
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-              Ethereum
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-
-        <Table.Cell>{this.state.amount.toString().substring(1,4)} Gwei</Table.Cell>
-        <Table.Cell>{this.state.gasPricefirst} Gwei</Table.Cell>
-        <Table.Cell>{this.state.gasPricelast} Gwei</Table.Cell>
-      </Table.Row>
-
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-              Matic
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-        <Table.Cell>{parseFloat(this.state.amount1usd).toFixed(6)} USD</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricefirst1usd).toFixed(6)} USD</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricelast1usd).toFixed(6)} USD</Table.Cell>
-      </Table.Row>
-      <Table.Row>
-        <Table.Cell>
-          <Header as='h5' image>
-            <Header.Content>
-              Ethereum
-            </Header.Content>
-          </Header>
-        </Table.Cell>
-        <Table.Cell>{parseFloat(this.state.amountusd).toFixed(4)} USD</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricefirstusd).toFixed(6)} USD</Table.Cell>
-        <Table.Cell>{parseFloat(this.state.gasPricelastusd).toFixed(6)} USD</Table.Cell>
-      </Table.Row>
-      
-      <Table.Row>
-
-      </Table.Row>
-    </Table.Body>
-  </Table>
-                  
-                </div>
-                
-
-              </div>
-            </main>
           </div>
         </div>
+        <div>
+          <div style={{padding:"20px"}} align="center">
+            <div style={{fontSize:"20px", position:"center"}} align = "center"></div>
+            <div style={{fontSize:"20px", position:"center", display:"inline-block", paddingLeft: "20px"}} align = "center">
+              <strong>Summary</strong>
+            </div>
+            <table className="ui celled table " style={{width:"1000px"}} align="center">
+              <thead>
+                <tr>
+                  <th style={{textAlign:"center"}}>Networrk</th>
+                  <th style={{textAlign:"center"}}>Avg Price</th>
+                  <th style={{textAlign:"center"}}>Lowest Price</th>
+                  <th style={{textAlign:"center"}}>Highest Price</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <tr>
+                  <td data-label="Matic" style={{textAlign:"center"}}><strong>Matic</strong></td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.amount1} Gwei</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricefirst1} Gwei</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricelast1} Gwei</td>
+                </tr>
+
+                <tr>
+                  <td data-label="Matic" style={{textAlign:"center"}}><strong>Ethereum</strong></td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.amount.toString().substring(1,4)} Gwei</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricefirst} Gwei</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricelast} Gwei</td>
+                </tr>
+
+                <tr>
+                  <td data-label="Matic" style={{textAlign:"center"}}><strong>Matic</strong></td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.amount1usd).toFixed(6)} USD</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricefirst1usd).toFixed(6)} USD</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricelast1usd).toFixed(6)} USD</td>
+                </tr>
+
+                <tr>
+                  <td data-label="Matic" style={{textAlign:"center"}}><strong>Ethereum</strong></td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.amountusd).toFixed(4)} USD</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricefirstusd).toFixed(6)} USD</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricelastusd).toFixed(6)} USD</td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div> 
+        </div>         
       </div>
     );
   }
