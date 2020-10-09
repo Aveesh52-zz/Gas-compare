@@ -2,51 +2,19 @@ import React, { Component } from 'react';
 import logo from '../logo.png';
 import './App.css';
 import Web3 from 'web3';
-import { PureComponent } from 'react';
-import { Header, Image, Table } from 'semantic-ui-react'
+//import { PureComponent } from 'react';
+//import { Header, Image, Table } from 'semantic-ui-react'
+import {AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip} from 'recharts';
+//import {BarChart,Bar,LineChart, Line, Legendx} from 'recharts';
 
 
-import {
-  AreaChart, Area,BarChart,Bar,LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-} from 'recharts';
-
-const Dagger = require('@maticnetwork/dagger')
-
+// const Dagger = require('@maticnetwork/dagger')
 // connect to correct dagger server, for receiving network specific events
-
 // you can also use socket based connection
-const dagger = new Dagger("wss://mainnet.dagger.matic.network")
-
-
-
-const data = [
-  {
-     uv: 4000, pv: 2400,
-  },
-  {
-   uv: 3000, pv: 1398
-  },
-  {
-     uv: 2000, pv: 9800
-  },
-  {
-    uv: 2780, pv: 3908
-  },
-  {
-    uv: 1890, pv: 4800
-  },
-  {
-    uv: 2390, pv: 3800
-  },
-  {
-   uv: 3490, pv: 4300
-  },
-];
-
+// const dagger = new Dagger("wss://mainnet.dagger.matic.network")
 
 const getPercent = (value, total) => {
   const ratio = total > 0 ? value / total : 0;
-
   return toPercent(ratio, 2);
 };
 
@@ -79,34 +47,33 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-    value: '',
-    gasPrices: [],
-    latestBlocksmatic:[],
-    web3:{},
-    web31:{},
-    gasPrice:'',
-    gasPrice1:'',
-    gasPrice2:'',
-    gasPrice3:'',
-    latestBlock:{},
-    latestBlockmatic:{},
-    amount:'',
-    amount1:'',
-    gasPricefirst:'',
-    gasPricefirst1:'',
-    gasPricelast:'',
-    gasPricelast1:'',
-    amountusd:'',
-    amount1usd:'',
-    gasPricefirstusd:'',
-    gasPricefirst1usd:'',
-    gasPricelastusd:'',
-    gasPricelast1usd:'',    
 
-  };
+      ethTransactionPrice: [],
+      ethTransPriceAverageGwei: 0,
+      ethTransPriceLowestGwei: 0,
+      ethTransPriceHighestGwei: 0,
+      ethTransPriceAverageUsd: 0,
+      ethTransPriceLowestUsd: 0,
+      ethTransPriceHighestUsd: 0,
 
-  this.hello = this.hello.bind(this);
- 
+      maticTransPrices:[],
+      maticTransPriceAverageGwei: 0,
+      maticTransPriceLowestGwei: 0,
+      maticTransPriceHighestGwei: 0,
+      maticTransPriceAverageUsd: 0,
+      maticTransPriceLowestUsd: 0,
+      maticTransPriceHighestUsd: 0,
+
+      transPrice: [],
+
+      gasPrices: [],
+      latestBlocksmatic:[],
+      web3:{},
+      web3_Matic:{},
+      latestBlock:{},
+      latestBlockmatic:{},   
+
+    };
   }
 
 
@@ -115,191 +82,111 @@ class App extends Component {
     let web3 = new Web3('https://mainnet.infura.io/v3/c47bbc8d04444c329473b4a30d203602')
     await this.setState({web3:web3});
 
-    // Javascript 
-
-
-   let web31 = new Web3('https://rpc-mumbai.matic.today');
-   //  let web31 = new Web3('https://rpc-mainnet.matic.network');
-    
-    
-   await this.setState({web31:web31});
+    let web3_Matic = new Web3('https://rpc-mumbai.matic.today');
+    //  let web3_Matic = new Web3('https://rpc-mainnet.matic.network');
+    await this.setState({web3_Matic:web3_Matic});
 
     // Fetch latest block
     let latestBlock = await web3.eth.getBlock('latest')
-    console.log('latest block', latestBlock)
+    //console.log('latest block', latestBlock)
     this.setState({latestBlock:latestBlock});
  
 
-    let latestBlockmatic = await web31.eth.getBlock('latest')
-    console.log('latest block', latestBlockmatic)
+    let latestBlockmatic = await web3_Matic.eth.getBlock('latest')
+    //console.log('latest block', latestBlockmatic)
     this.setState({latestBlockmatic:latestBlockmatic});
 
-    dagger.on('latest:block.number', result => {
-      console.log(`New block created: ${result}`)
-    })
-
-
-
-//     // get new block as soon as it gets created
-//    dagger.on('latest:block.number', latestBlockmatic => {
-//    latestBlockmatic = latestBlockmatic;
-//     this.setState({latestBlockmatic:latestBlockmatic});
-//     console.log(`New block created: ${latestBlockmatic}`)   
-    
-// })
-
-
-    
-    // let privateKey1 = "[YOUR_PRIVATE_KEY]";
-    // let account = "[YOUR_ACCOUNT_ADDRESS]";
-    // let schainEndpoint = "[YOUR_SKALE_CHAIN_ENDPOINT]";
-
-    // const web31 = new Web3(new Web3.providers.HttpProvider(schainEndpoint));
-    let gasPrice = await web31.eth.getGasPrice()
-    console.log('gasPrice', gasPrice)
- 
-
-
-
-
-
-    // // Fetch Gas price
-    // let gasPrice = await web3.eth.getGasPrice()
-    // console.log('gasPrice', gasPrice)
-    // this.setState({
-    //   gasPrice: gasPrice
-    // })
-    
-    //   // Fetch Gas price
-    //   let gasPrice1 = await web31.eth.getGasPrice()
-    //   console.log('gasPrice', gasPrice1)
-    //   this.setState({
-    //     gasPrice1: gasPrice1
-    //   })
-
-
-   
-   
 
     // Fetch latest 10 blocks
-    let block
-    let gasPrices1 = []
-    let gasPricesasc = []
-    let transprice = 0
-    console.log("asas");
+    let ethTransactionPrice = []
+    let ethTransactionPriceAesc = []
     let amount = 0;
     for (let i = 0; i < 20; i++) {
       const transactionReceipt = await this.state.web3.eth.getTransaction(this.state.latestBlock.transactions[i]);
-      transprice = transactionReceipt.gasPrice*transactionReceipt.gas;
-      console.log(transprice);
+      let transprice = (transactionReceipt.gasPrice*transactionReceipt.gas)/1000000000;
+      //console.log(transprice);
       
-    //  console.log(transactionReceipt1.gasPrice);
-      gasPrices1.push(transprice.toString().substring(0,3));
-      amount += parseInt(transprice);
-      console.log(amount);
+      ethTransactionPrice.push(transprice);
+      amount += (transprice);
+      //console.log(amount);
     }
+    amount /= 20;
+    ethTransactionPriceAesc = ethTransactionPrice.sort(function(a, b){return a - b})
 
-    gasPricesasc = gasPrices1.sort(function(a, b){return a - b})
-    //let amountusd = amount*0.00000034;
-    //console.log(amountusd);
-    //console.log(amount);
-    let gasPricefirstusd = gasPricesasc[0]*0.00000034;
-    let amountusd = gasPricesasc[10]*0.00000034;
-    let gasPricelastusd = gasPricesasc[19]*0.00000034;
+    let transPriceLowestUsd = ethTransactionPriceAesc[0]*0.00000034;
+    let transPriceAverageUsd = amount*0.00000034;
+    let transPriceHighestUsd = ethTransactionPriceAesc[19]*0.00000034;
     this.setState({
-      gasPrices1: gasPrices1,
-      amount:amount,
-      amountusd:amountusd,
-      gasPricefirst:gasPricesasc[0],
-      gasPricelast:gasPricesasc[19],
-      gasPricefirstusd:gasPricefirstusd,
-      gasPricelastusd:gasPricelastusd
+      ethTransactionPrice: ethTransactionPrice,
+      ethTransPriceAverageGwei: amount,
+      ethTransPriceLowestGwei:ethTransactionPriceAesc[0],
+      ethTransPriceHighestGwei:ethTransactionPriceAesc[19],
+      ethTransPriceAverageUsd:transPriceAverageUsd,
+      ethTransPriceLowestUsd:transPriceLowestUsd,
+      ethTransPriceHighestUsd:transPriceHighestUsd
     })
-    console.log(this.state.gasPrices1);
+    //console.log(this.state.ethTransactionPrice);
+    //console.log(latestBlockmatic);  
 
-
-
-
-   console.log(latestBlockmatic);  
-
-   for(let j=0;j<200;j++){
-    const blockmatic = await this.state.web31.eth.getBlock(latestBlockmatic.number - j);
-    console.log(blockmatic);
-    console.log(blockmatic.transactions.length);
-    let amount = 0
-    let gasPrices2 = []
-    let gasPricesasc1 = []
+    let maticTransPrices = []
+    let maticTransPricesasc = []
     let amount1 = 0;
-    let transprice1 = 0;
-    for(let i = 0; i < blockmatic.transactions.length; i++) {
-     
-    
-    let transactionReceipt1;
-    transactionReceipt1 = await this.state.web31.eth.getTransaction(blockmatic.transactions[i]);
-    transprice1 = transactionReceipt1.gasPrice*transactionReceipt1.gas;
-    
-    console.log(transprice1);
-    
-    amount1 += transprice1;
-
+    let count = 0;
+    for(let j=0;j<1000;j++){
       
+      if(count<20){
+        const blockmatic = await this.state.web3_Matic.eth.getBlock(latestBlockmatic.number - j);
+        //console.log(blockmatic);
+        //console.log(blockmatic.transactions.length);
 
-    for(i=0; i<20; i++){
-      gasPrices2.push(transprice1.toString().substring(0,1))
+        for(let i = 0; i < blockmatic.transactions.length; i++) {
+          if(count<20){
+            let transactionReceipt1 = await this.state.web3_Matic.eth.getTransaction(blockmatic.transactions[i]);
+            let transprice1 = (transactionReceipt1.gasPrice*transactionReceipt1.gas)/1000000000;
+            //console.log(transprice1);
+            maticTransPrices.push(transprice1)
+            amount1 += transprice1;
+            count+=1;
+          }
+          else{
+            break;
+          }
+        } 
+      }
+      else{
+        break;
+      }
     }
-    gasPricesasc1 = gasPrices2.sort(function(a, b){return a - b})
+
+    amount1/=20;
+
+    let maticTransPriceAesc = maticTransPrices.sort(function(a, b){return a - b})      
+    //console.log(maticTransPrices);
+    //console.log(amount1);
     
-    console.log(gasPrices2);
-    let gasPrice3 = [];
-    for(let i=0;i<20;i++){
-     gasPrice3.push({eth:gasPrices1[i],matic:gasPrices2[i]});
-    }
-    console.log(amount1);
-    amount1 = amount1.toString().substring(1,2);
-    let amount1usd = amount1*0.00000034;
-    console.log(amount1);
-    let gasPricefirst1usd = gasPricesasc1[0]*0.00000034;
-    let gasPricelast1usd = gasPricesasc1[19]*0.00000034;
-    console.log(gasPrice3);
+    let mTransPriceAverageUsd = amount1*0.00000034;
+    let mTransPriceLowestUsd = maticTransPriceAesc[0]*0.00000034;
+    let mTransPriceHighestUsd = maticTransPriceAesc[19]*0.00000034;
+ 
     this.setState({
-      gasPrice3:gasPrice3,
-      amount1:amount1,
-      amount1usd:amount1usd,
-      gasPricefirst1:gasPrices2[0],
-      gasPricelast1:gasPrices2[19],
-      gasPricefirst1usd:gasPricefirst1usd,
-      gasPricelast1usd:gasPricelast1usd
+      maticTransPrices:maticTransPrices,
+      maticTransPriceAverageGwei: amount1,
+      maticTransPriceLowestGwei:maticTransPriceAesc[0],
+      maticTransPriceHighestGwei:maticTransPriceAesc[19],
+      maticTransPriceAverageUsd:mTransPriceAverageUsd,
+      maticTransPriceLowestUsd:mTransPriceLowestUsd,
+      maticTransPriceHighestUsd:mTransPriceHighestUsd
     });
 
-  } 
-}
-
-    //  // Fetch latest 10 blocks
-    //  let blockmatic
-    //  let latestBlocksmatic = []
-    
-    //  this.setState({
-    //    latestBlocksmatic: latestBlocksmatic
-    //  })
-
-    //  console.log(this.state.latestBlocksmatic);
- 
-  }
-
-
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  }
-
-  handleSubmit(event) {
-    event.preventDefault();
-    var receipt =  this.state.web3.eth.getTransactionReceipt(this.state.value)
-    .then(console.log);    
-  }
-
-  async hello(){
-    var a = await this.state.web3.eth.getTransaction('0xe91f3b42496a24f3126f0c6f96717f12de6087be790d6ddd03029379d5b73ba7');
-    console.log(a);
+    let transPrice = [];
+    for(let i=0;i<20;i++){
+      transPrice.push({eth:ethTransactionPrice[i],matic:maticTransPrices[i]});
+    }
+    this.setState({
+      transPrice: transPrice
+    })
+    console.log("done")
+    //console.log(transPrice);
   }
 
   render() {
@@ -324,7 +211,7 @@ class App extends Component {
             <AreaChart
               width={500}
               height={400}
-              data={this.state.gasPrice3}
+              data={this.state.transPrice}
               stackOffset="expand"
               margin={{
                 top: 10
@@ -412,30 +299,30 @@ class App extends Component {
 
                 <tr>
                   <td data-label="Matic" style={{textAlign:"center"}}><strong>Matic</strong></td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.amount1} Gwei</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricefirst1} Gwei</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricelast1} Gwei</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.maticTransPriceAverageGwei.toFixed(6)} Gwei</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.maticTransPriceLowestGwei.toFixed(6)} Gwei</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.maticTransPriceHighestGwei.toFixed(6)} Gwei</td>
                 </tr>
 
                 <tr>
-                  <td data-label="Matic" style={{textAlign:"center"}}><strong>Ethereum</strong></td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.amount.toString().substring(1,4)} Gwei</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricefirst} Gwei</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.gasPricelast} Gwei</td>
+                  <td data-label="eth" style={{textAlign:"center"}}><strong>Ethereum</strong></td>
+                  <td data-label="eth" style={{textAlign:"center"}}>{this.state.ethTransPriceAverageGwei.toFixed(6)} Gwei</td>
+                  <td data-label="eth" style={{textAlign:"center"}}>{this.state.ethTransPriceLowestGwei.toFixed(6)} Gwei</td>
+                  <td data-label="eth" style={{textAlign:"center"}}>{this.state.ethTransPriceHighestGwei.toFixed(6)} Gwei</td>
                 </tr>
 
                 <tr>
                   <td data-label="Matic" style={{textAlign:"center"}}><strong>Matic</strong></td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.amount1usd).toFixed(6)} USD</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricefirst1usd).toFixed(6)} USD</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricelast1usd).toFixed(6)} USD</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.maticTransPriceAverageUsd.toFixed(6)} USD</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.maticTransPriceLowestUsd.toFixed(6)} USD</td>
+                  <td data-label="Matic" style={{textAlign:"center"}}>{this.state.maticTransPriceHighestUsd.toFixed(6)} USD</td>
                 </tr>
 
                 <tr>
-                  <td data-label="Matic" style={{textAlign:"center"}}><strong>Ethereum</strong></td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.amountusd).toFixed(4)} USD</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricefirstusd).toFixed(6)} USD</td>
-                  <td data-label="Matic" style={{textAlign:"center"}}>{parseFloat(this.state.gasPricelastusd).toFixed(6)} USD</td>
+                  <td data-label="eth" style={{textAlign:"center"}}><strong>Ethereum</strong></td>
+                  <td data-label="eth" style={{textAlign:"center"}}>{this.state.ethTransPriceAverageUsd.toFixed(6)} USD</td>
+                  <td data-label="eth" style={{textAlign:"center"}}>{this.state.ethTransPriceLowestUsd.toFixed(6)} USD</td>
+                  <td data-label="eth" style={{textAlign:"center"}}>{this.state.ethTransPriceHighestUsd.toFixed(6)} USD</td>
                 </tr>
 
               </tbody>
